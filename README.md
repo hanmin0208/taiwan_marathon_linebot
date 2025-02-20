@@ -1,0 +1,2 @@
+# taiwan_marathon_linebot
+可以在Line上即時查詢馬拉松資訊
