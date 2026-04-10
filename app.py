@@ -12,6 +12,12 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from tw_stock_tool import (
+    format_stock_groups,
+    get_financial_summary,
+    get_stock_news,
+    get_stock_price_summary,
+)
 
 # 設置日誌
 logging.basicConfig(
@@ -204,8 +210,19 @@ def handle_message(event):
         return
     
     try:
+        if text == "股群分類":
+            result = format_stock_groups()
+        elif text.startswith("台股報價 "):
+            symbol = text.replace("台股報價 ", "").strip()
+            result = get_stock_price_summary(symbol) if symbol else "請輸入股票代號，例如：台股報價 2330"
+        elif text.startswith("台股財報 "):
+            symbol = text.replace("台股財報 ", "").strip()
+            result = get_financial_summary(symbol) if symbol else "請輸入股票代號，例如：台股財報 2330"
+        elif text.startswith("台股新聞 "):
+            symbol = text.replace("台股新聞 ", "").strip()
+            result = get_stock_news(symbol) if symbol else "請輸入股票代號，例如：台股新聞 2330"
         # 處理搜尋指令
-        if text.startswith('/'):
+        elif text.startswith('/'):
             keyword = text[1:]
             if not keyword:
                 result = "請在/後輸入搜尋關鍵字"
@@ -231,8 +248,13 @@ def handle_message(event):
                 "2: 中部地區\n"
                 "3: 南部地區\n"
                 "4: 東部地區\n"
-                "5: 離島地區"
-                "3️⃣. /關鍵字 - 搜尋賽事名稱\n"
+                "5: 離島地區\n"
+                "3️⃣. /關鍵字 - 搜尋賽事名稱\n\n"
+                "📊 台股工具：\n"
+                "- 股群分類\n"
+                "- 台股報價 2330\n"
+                "- 台股財報 2330\n"
+                "- 台股新聞 2330"
             )
         
         line_bot_api.reply_message(
